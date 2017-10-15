@@ -26,6 +26,16 @@
   color: white;
 }
 
+.modal-header {
+  text-align: center;
+  font-size: 30px;
+}
+
+.modal-footer {
+  text-align: center;
+  font-size: 20px;
+}
+
 .modal-header h3 {
   margin-top: 0;
 }

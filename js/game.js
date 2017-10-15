@@ -13,16 +13,12 @@ define(["utils", "snake", "fruit", "grid", "data"], (Utils, Snake, Fruit, Grid, 
     stage    = Utils.stage;
     ticker   = Utils.ticker;
     snake    = new Snake();
-    
+
     score       = 0;
     levelNumber = 1;
     health      = 3;
 
     snake.initialize();
-    let fx = GRID_CENTER_X + 2;
-    let fy = GRID_CENTER_Y + 2;
-    let f = new Fruit(fx, fy, FRUIT_PLUS_ONE);
-    f.draw();
 
     document.addEventListener("keydown", (e) => {
       keyPressed[e.keyCode] = true;
@@ -33,9 +29,16 @@ define(["utils", "snake", "fruit", "grid", "data"], (Utils, Snake, Fruit, Grid, 
     });
 
     generateFood(50);
+  }
 
+  exports.exit = function() {
+    stage.removeChildren();
+    renderer.clear();
+    ticker.remove(loop);
+  }
+
+  exports.addAnimation = function() {
     ticker.add(loop);
-    ticker.start();
   }
 
   exports.start = function() {
@@ -63,10 +66,11 @@ define(["utils", "snake", "fruit", "grid", "data"], (Utils, Snake, Fruit, Grid, 
       // FRUIT_PLUS_TWO,
       // FRUIT_PLUS_THREE,
       FRUIT_MINUS_ONE,
-      FRUIT_MINUS_TWO, 
+      // FRUIT_MINUS_TWO, 
       // FRUIT_MINUS_THREE,
-      // FRUIT_DOUBLE, 
-      // FRUIT_TRIPLE
+      FRUIT_DOUBLE, 
+      FRUIT_TRIPLE,
+      FRUIT_DIVIDE_BY_TWO
     ]
     for (let i = 0; i < GRID_COLS; i++) {
       for (let j = 0; j < GRID_ROWS; j++) {
@@ -163,8 +167,32 @@ define(["utils", "snake", "fruit", "grid", "data"], (Utils, Snake, Fruit, Grid, 
 
           case FRUIT_MINUS_TWO:
             score -= 20;
+            for (let i = 0; i < 3; i++)
+              snake.shrink();
+          break;
+
+          case FRUIT_MINUS_THREE:
+            score -= 30;
             for (let i = 0; i < 4; i++)
               snake.shrink();
+          break;
+
+          case FRUIT_DOUBLE:
+            snake.state = SNAKE_ENLARGE_STATE;
+            score *= 2;
+            snake.changedSize = snake.size() * 2;
+          break;
+
+          case FRUIT_TRIPLE:
+            snake.state = SNAKE_ENLARGE_STATE;
+            score *= 3;
+            snake.changedSize = snake.size() * 3;
+          break;
+
+          case FRUIT_DIVIDE_BY_TWO:
+            snake.state = SNAKE_SHRINK_STATE;
+            score = parseInt(score / 2);
+            snake.changedSize = parseInt(snake.size() / 2);
           break;
         }
 
@@ -173,6 +201,29 @@ define(["utils", "snake", "fruit", "grid", "data"], (Utils, Snake, Fruit, Grid, 
     }
     else {
       snake.shrink();
+    }
+
+    switch (snake.state) {
+      case SNAKE_ENLARGE_STATE:
+        if (snake.size() >= snake.changedSize) {
+          snake.lastSize = null;
+          snake.changedSize = null;
+          snake.state = SNAKE_DEFAULT_STATE;
+        }
+        else {
+          snake.enlarge();
+        }
+      break;
+
+      case SNAKE_SHRINK_STATE:
+        if (snake.size() <= snake.changedSize) {
+          snake.changedSize = null;
+          snake.state = SNAKE_DEFAULT_STATE;
+        }
+        else {
+          snake.shrink();
+        }
+      break;
     }
 
     snake.draw();

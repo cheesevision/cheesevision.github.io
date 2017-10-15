@@ -4,10 +4,12 @@ define(["utils", "data"], (Utils, Data) => {
   let logicGrid = Data.logicGrid;
   
   function Snake() {
-    this._queue    = [];
-    this._state    = SNAKE_DEFAULT_STATE;
-    this._vx       = 0;
-    this._vy       = 0;
+    this._queue      = [];
+    this.state       = SNAKE_DEFAULT_STATE;
+    this._vx         = 0;
+    this._vy         = 0;
+    this.lastSize    = null;
+    this.changedSize = null;
   }
 
   Snake.prototype.front = function() {
